@@ -91,15 +91,30 @@ tree_3sp(0.5)
 ```
 
 > What is the order-0 phylogenetic diversity (Faith's PD) of a community containing the three species, whose phylogenetic tree is shown in the figure?
+>
+> Faith PD equals to 2 with 3 species.
 
 > What is the possible range of values for `h`?
+>
+> H ranges between 0 and 1 (its a possibility measure)
 
 > What effect does `h` have on the value of PD?
+>
+> Increasing parameter H, Faiths PD measure is decreasing.
 
 > Express the value of PD in terms of `h`.
+>
+> PD(h) = 3-h
 
 > What is the richness (taxonomic, not phylogenetic) of the community?
 > Explain how $h$ allows us to take into account the closeness between species B and A.
+>
+> Taxonomic richness is 3.
+>
+> H does not effect the taxonomic richness because the species number does not change with H.
+> It acts in a different level of estimation, adding more information on diversity.
+> H is an entrophy measure that gives info in information itself, or a measure of surprise.
+> its a q=1 level diversity measure.
 
 > If botanists disagree on whether species B and A are synonymous and a phylogeny shows that their distance $h$ is small, suggest a method to help them reach agreement.
 
