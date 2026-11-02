@@ -120,8 +120,6 @@ tree_3sp(0.5)
 
 ## Lognormal distribution
 
-*We draw two random distributions from a lognormal distribution. Their size and species richness are identical; only the standard deviation of the distribution varies.*
-
 ```{r}
 library("tidyverse")
 library("divent")
@@ -159,17 +157,114 @@ autoplot(comm_lnorm)
 ```
 
 > What is the species richness of the observed communities?
+>
+> Species richness is 100 sp.
+> for both communities.
+> (number of species)
 
 > What is the abundance of the rarest species (approximately, as read from the plot) compared to the total number of trees?
+>
+> Abundance axis is on log10 scale.
+> The numbers approximately are lets say
+>
+> Sigma1: 900
+>
+> Sigma2: 25
+>
+> That gives:
+>
+> ```{r}
+> log10(900)
+> 2.954243 #individuals for sigma 1 example
+> log10(25)
+> 1.39794 #individuals for sigma 2 example
+> ```
 
 > What do we observe for a sample of reasonable size, say 6.25 ha with 600 trees per hectare?
 > Draw the figure.
 > Be careful not to overwrite the `comm_lnorm` variable when reusing the code.
 
+```{r}
+library("tidyverse")
+library("divent")
+
+set.seed(973)
+
+# Sample parameters
+the_size <- 6.25 * 600  
+the_richness <- 100    # if we use the same richness like in the other example 
+
+rcommunity(
+  1,
+  size = the_size,
+  species_number = the_richness,
+  distribution = "lnorm",
+  sd_lnorm = 1
+) %>%
+  mutate(site = "Forest Plot (6.25 ha)") -> 
+  comm_lnorm2
+
+autoplot(comm_lnorm2)
+```
+
 > Plot the diversity profile of the two communities
+
+```{r}
+library("tidyverse")
+library("divent")
+
+set.seed(973)
+
+# Sample parameters
+the_size <- 6.25 * 600  
+the_richness <- 100    # if we use the same richness like in the other example 
+
+rcommunity(
+  1,
+  size = the_size,
+  species_number = the_richness,
+  distribution = "lnorm",
+  sd_lnorm = 1
+) %>%
+  # Give it a name
+  mutate(site = "sigma = 1_2") %>%
+  # Bind the second community data into the same tibble
+  bind_rows(
+    # Draw the second community    
+    rcommunity(
+      2,
+      size = the_size,
+      species_number = the_richness,
+      distribution = "lnorm",
+      sd_lnorm = 2
+    ) %>%
+      # Give it a name
+      mutate(site = "sigma = 2_2")
+  ) ->
+  # Store the result
+  comm_lnorm3
+# Whittaker plot
+autoplot(comm_lnorm3)
+```
 
 > Which community is the most diverse?
 > Explain this in relation to the value of $\sigma$.
+
+Sigma as information on the dataset: it gives info on evenness and dominance in the distribution of species.
+
+Sigma=1 means more evenness.
+Geometric distribution would give us a sharply falling trend, because of the presence of some very abundant species.
+
+Here with lognormal we have some highly abundant species and as well some very rare species but most of the species would share similar abundances between them.
+
+Between the two sigma cases (standard deviation) controls the normal distribution of the two communities.
+
+The bigger the sigma, the less even the community is.
+
+Sigma 1 community is more diverse.
+
+If we question on diversity with the growing q numbers we put more emphasis on different aspects of diversity.
+q=0 is not effected by rarity for example.
 
 ## Pielou (1972)
 
@@ -202,8 +297,10 @@ pielou_1972
 ```
 
 > How many species of aphids are there?
+> There are 10 different species
 
 > How many different plants are there?
+> There are 12 different Solidago species
 
 *Given the experimental protocol (all species studied are in the data; there are no unobserved species), diversity will always be calculated at the sample level: the argument* `estimator = "naive"` *will be used systematically.*
 
@@ -211,9 +308,50 @@ pielou_1972
 
 > Count the number of aphid species on each plant.
 
+I got stuck here with a bottleneck cause by my coding skills, so I will copy some of the codes, until I have time. Its not about not understanding the concept, but more about reflexes in coding. 
+
+
+#```{r}
+pielou_1972 %>% 
+  abd_sum(as_numeric = TRUE) ->
+  p6_abd_sum
+
+p6_abd %>% 
+  as.numeric() ->
+  p6_abd_vector
+sum(p6_abd_vector > 0)
+
+```
+
+```{r}
+solidago_abundance_sum <- pielou_1972 %>%
+  rowwise() %>%
+  mutate(
+    # Sums up all raw counts across your numeric columns
+    total_abundance = sum(c_across(where(is.numeric)), na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+# View the result
+print(solidago_abundance_sum)
+```
+
+
 > What is the maximum species richness?
 
+```{r}
+solidago_abundance_sum %>% 
+  div_richness(estimator = "naive") #we use naive because it is assumed that asymptotic diversity is reached with sampling
+```
+
+
 > Calculate Simpson's diversity (not entropy).
+
+```{r}
+p6_abd %>% 
+  div_hill(q = 2, level = round(p6_abd_sum / 6.25))
+```
+
 
 > Which plant is the most diverse according to Simpson's measure?
 
